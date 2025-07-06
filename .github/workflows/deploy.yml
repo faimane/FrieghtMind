@@ -42,4 +42,4 @@ jobs:
           npm install
           npm run build
           aws s3 sync ./build s3://freightmind-frontend --delete
-          aws cloudfront create-invalidation --distribution-id YOUR_CF_ID --paths "/*"
+          aws cloudfront create-invalidation --distribution-id E236BKD426PNKF --paths "/*"
