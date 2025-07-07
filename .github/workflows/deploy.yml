@@ -7,9 +7,13 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: eu-west-1
+      AWS_DEFAULT_REGION: eu-west-1
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -23,10 +27,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: Build and Deploy Frontend (React/Vite)
+      - name: Install dependencies and build frontend
         run: |
-          cd frontend
           npm install
           npm run build
-          aws s3 sync ./build s3://freightmind-frontend --delete
-          aws cloudfront create-invalidation --distribution-id E236BKD426PNKF --paths "/*"
+
+      - name: Upload to S3
+        run: |
+          aws s3 sync ./dist s3://freightmind-frontend --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id E236BKD426PNKF \
+            --paths "/*"
